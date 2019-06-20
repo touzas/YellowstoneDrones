@@ -1,19 +1,76 @@
 using System;
-namespace Dron
+using System.Text.RegularExpressions;
+
+namespace YellowstoneDrones
 {
+    public enum Command
+    {
+        DronArea,
+        StartPosition,
+        Movement,
+        Undefined,
+    }
+    public class StringCommand
+    {
+        public Command cmd;
+        public string args;
+        public StringCommand()
+        {
+            cmd = Command.Undefined;
+            args = "";
+        }
+    }
     public static class Helper
     {
-        public static DronDirection GetDirection(char data)
+        const bool DEBUG = true;
+        const string RegexBoard = "[0-9][ ][0-9]$";
+        const string RegexInitialPossition = "[0-9][ ][0-9][ ][NSEW]$";
+        const string RegexMovement = "[MRL]";
+
+        public static StringCommand GetCommandType(string data)
+        {
+            var res = new StringCommand();
+
+            var rb = new Regex(RegexBoard);
+            var rip = new Regex(RegexInitialPossition);
+            var rm = new Regex(RegexMovement);
+
+            MatchCollection matches = null;
+
+            if (rb.IsMatch(data))
+            {                
+                matches = rb.Matches(data);
+                res.cmd = Command.DronArea;
+            }                
+            else if (rip.IsMatch(data))
+            {
+                matches = rip.Matches(data);
+                res.cmd = Command.StartPosition;
+            }
+            else if (rm.IsMatch(data))
+            {
+                matches = rm.Matches(data);
+                res.cmd = Command.Movement;
+            }
+            
+            foreach(Match m in matches)
+            {
+                res.args += m.Value.ToLowerInvariant();
+            }
+
+            return res;
+        }
+        public static DronDirection GetDirection(string data)
         {
             switch(data)
             {
-                case 'n':
+                case "n":
                     return DronDirection.Nortn;
-                case 's':
+                case "s":
                     return DronDirection.South;
-                case 'e':
+                case "e":
                     return DronDirection.East;
-                case 'w':
+                case "w":
                     return DronDirection.West;
             }
             return DronDirection.Undefined;
@@ -30,50 +87,39 @@ namespace Dron
                     return DronMovement.Advance;
             }
             return DronMovement.Undefined;
-        }
-        public static Command GetCommandType(string data)
-        {
-            if (string.IsNullOrEmpty(data))
-                return Command.Undefined;
-            if (data[0] == 'q')
-                return Command.Quit;
-            if (char.IsDigit(data[0]))
-                return Command.StartPosition;
-            else 
-                return Command.Movement;
-        }
-        public static Tuple<int, int, DronDirection> ParseStartPositionCommand(string data)
+        }        
+        public static CoordinatesWithDirectionCommand ParseStartPositionCommand(string data)
         {
             string[] area = data.Split(' ');
             if (area.Length != 3)
                 return null;
             var coordinates = GetCoordinates(data);
-            var movement = GetDirection(area[2][0]);
-            return Tuple.Create(coordinates.Item1, coordinates.Item2, movement);
+            var movement = GetDirection(area[2]);
+            return new CoordinatesWithDirectionCommand(){ X = coordinates.X, Y = coordinates.Y, Direction = movement};
         }
-        public static Tuple<int, int> GetCoordinates(string data)
+        public static CoordinatesCommand GetCoordinates(string data)
         {
             int x = -1;
             int y = -1;
             string[] area = data.Split(' ');
             if (area.Length < 2)
             {
-                Console.WriteLine("Flying area must be contains a X and Y positions");
+                ConsoleDebug("Flying area must be contains a X and Y positions");
                 return null;
             }
             int.TryParse(area[0], out x);
             int.TryParse(area[1], out y);
             if (x <= 0 || y <= 0)
             {
-                Console.WriteLine("Flying are is too much small");
+                ConsoleDebug("Flying are is too much small");
                 return null;
             }
-            return Tuple.Create(x, y);
+            return new CoordinatesCommand(){ X = x, Y = y };
         }
-        public static string StringFromConsole()
+        public static void ConsoleDebug(string data, params object[] arg)
         {
-            var data = Console.ReadLine();
-            return data.Trim().ToLowerInvariant();
+            if (DEBUG)
+                Console.WriteLine(data, arg);
         }
     }
 }

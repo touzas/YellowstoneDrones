@@ -1,53 +1,49 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Dron
+namespace YellowstoneDrones
 {
     class Program
     {
+        static string[] UnitaryTest()
+        {
+            var lines = new List<string>();
+            lines.Add("5 5");
+            lines.Add("3 3 E");
+            lines.Add("L");
+            lines.Add("3 3 E");
+            lines.Add("MMRMMRMRRM");
+            lines.Add("1 2 N");
+            lines.Add("LMLMLMLMMLMLMLMLMM");
+            return lines.ToArray();
+        }
         static void Main(string[] args)
         {
             Console.WriteLine("Yellowstone’s park control forest");
-            Console.WriteLine("Enter 'q' to Quit");
-            var dron = ReadFlyingArea();
-            if (dron == null)
-                return;
-            
-            while(DronMove(dron))
+
+            var lines = UnitaryTest();            
+            var command = new StringCommand();
+            Dron dron = null;
+            foreach(var line in lines)
             {
-                Console.WriteLine("Please, insert a start position or a movement");
+                command = Helper.GetCommandType(line);
+                if (command.cmd == Command.DronArea)
+                    dron = CreateDron(command.args);
+                
+                if (dron == null)
+                    continue;
+                if (command.cmd == Command.StartPosition)
+                    dron.Start(command.args);
+                if (command.cmd == Command.Movement)
+                    dron.Move(command.args);
             }
-            Console.WriteLine("Dron stop!");
         }
-        static Dron ReadFlyingArea()
+        static Dron CreateDron(string data)
         {
-            Console.WriteLine("Please insert a flying area:");
-            var data = Helper.StringFromConsole();
             var flyingArea = Helper.GetCoordinates(data);
             if (flyingArea == null)
                 return null;
-            return new Dron(flyingArea.Item1, flyingArea.Item2);
-        }
-        static bool DronMove(Dron data)
-        {            
-            var move = Helper.StringFromConsole();
-            var command = Helper.GetCommandType(move);
-            switch(command)
-            {
-                case Command.StartPosition:
-                    var startPos = Helper.ParseStartPositionCommand(move);
-                    data.Start(startPos.Item1, startPos.Item2, startPos.Item3);
-                    break;
-                case Command.Movement:
-                    foreach(var ch in move)
-                    {
-                        var movement = Helper.GetMovement(ch);
-                        data.Move(movement);
-                    }
-                    break;
-                case Command.Quit:
-                    return false;
-            }
-            return true;
+            return new Dron(flyingArea);
         }
     }
 }
