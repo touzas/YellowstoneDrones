@@ -1,0 +1,11 @@
+/home/touzas/NetCore/YellowstoneDrones/bin/Debug/netcoreapp2.2/YellowstoneDrones.deps.json
+/home/touzas/NetCore/YellowstoneDrones/bin/Debug/netcoreapp2.2/YellowstoneDrones.runtimeconfig.json
+/home/touzas/NetCore/YellowstoneDrones/bin/Debug/netcoreapp2.2/YellowstoneDrones.runtimeconfig.dev.json
+/home/touzas/NetCore/YellowstoneDrones/bin/Debug/netcoreapp2.2/YellowstoneDrones.dll
+/home/touzas/NetCore/YellowstoneDrones/bin/Debug/netcoreapp2.2/YellowstoneDrones.pdb
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.csprojAssemblyReference.cache
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.csproj.CoreCompileInputs.cache
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.AssemblyInfoInputs.cache
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.AssemblyInfo.cs
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.dll
+/home/touzas/NetCore/YellowstoneDrones/obj/Debug/netcoreapp2.2/YellowstoneDrones.pdb
