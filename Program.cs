@@ -7,10 +7,9 @@ namespace YellowstoneDrones
 {
     class Program
     {
-        /**
-        Devuelve una serie de líneas que definen la entrada de 
-        ordenes hacia los drons
-        */
+        /// <summary>
+        /// Devuelve una serie de líneas que definen la entrada de ordenes hacia los drons
+        /// </summary>
         static List<string> UnitaryTest()
         {
             var lines = new List<string>();
@@ -23,9 +22,9 @@ namespace YellowstoneDrones
             lines.Add("LMLMLMLMMLMLMLMLMM");
             return lines;
         }
-        /**
-        Devuelve una serie de líneas que son el resultado esperado
-        */
+        /// <summary>
+        /// Devuelve una serie de líneas que son el resultado esperado
+        /// </summary>
         static List<string> UnitaryTestResult()
         {
             var lines = new List<string>();
@@ -34,13 +33,10 @@ namespace YellowstoneDrones
             lines.Add("1 4 N");
             return lines;
         }
-        // Summary:
-        //     Método principal de la aplicación
-        //
-        // Parameters:
-        //   collection:
-        //     Una Lista de argumentos que indican que se va a procesar
-        //
+        /// <summary>
+        /// Método principal de la aplicación
+        /// </summary>
+        /// <param name="args">Una Lista de argumentos que indican que se va a procesar</param>
         static void Main(string[] args)
         {
             List<string> lines = new List<string>();
@@ -77,13 +73,10 @@ namespace YellowstoneDrones
                 Console.WriteLine("UnitaryTest is {0}", result.SequenceEqual(UnitaryTestResult()));
 
         }
-        // Summary:
-        //     Procesa cada línea introducida en la lista de ordenes
-        //
-        // Parameters:
-        //   collection:
-        //     Una Lista de comandos a procesar
-        //
+        /// <summary>
+        /// Procesa cada línea introducida en la lista de ordenes
+        /// </summary>
+        /// <param name="lines">Una Lista de comandos a procesar</param>
         static List<string> ProcessCommands(List<string> lines)
         {
             List<string> result = new List<string>();
@@ -113,13 +106,10 @@ namespace YellowstoneDrones
             result.Add(drone.ShowPossition());
             return result;
         }
-        // Summary:
-        //     Crea el Dron en el caso de que se hayan indicado unas coordenadas de forma correcta.        
-        //
-        // Parameters:
-        //   String:
-        //     Commando que contiene unas coordenadas
-        //
+        /// <summary>
+        /// Crea el Dron en el caso de que se hayan indicado unas coordenadas de forma correcta.
+        /// </summary>
+        /// <param name="lines">Commando que contiene unas coordenadas</param>
         static Drone CreateDrone(string data)
         {
             var flyingArea = Helper.GetCoordinates(data);
