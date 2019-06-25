@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 namespace YellowstoneDrones
@@ -22,7 +24,7 @@ namespace YellowstoneDrones
     }
     public static class Helper
     {
-        const bool DEBUG = true;
+        const bool DEBUG = false;
         const string RegexBoard = "[0-9][ ][0-9]$";
         const string RegexInitialPossition = "[0-9][ ][0-9][ ][NSEW]$";
         const string RegexMovement = "[MRL]";
@@ -54,9 +56,7 @@ namespace YellowstoneDrones
             }
             
             foreach(Match m in matches)
-            {
                 res.args += m.Value.ToLowerInvariant();
-            }
 
             return res;
         }
@@ -65,7 +65,7 @@ namespace YellowstoneDrones
             switch(data)
             {
                 case "n":
-                    return DronDirection.Nortn;
+                    return DronDirection.North;
                 case "s":
                     return DronDirection.South;
                 case "e":
@@ -116,9 +116,15 @@ namespace YellowstoneDrones
             }
             return new CoordinatesCommand(){ X = x, Y = y };
         }
+        public static string GetDescriptionFromEnumValue(Enum value)
+        {
+            DescriptionAttribute attribute = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false).SingleOrDefault() as DescriptionAttribute;
+            return attribute == null ? value.ToString() : attribute.Description;
+        }
+
         public static void ConsoleDebug(string data, params object[] arg)
         {
-            if (DEBUG)
+            if (DEBUG)                
                 Console.WriteLine(data, arg);
         }
     }
