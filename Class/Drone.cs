@@ -4,7 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 
 namespace YellowstoneDrones
-{            
+{   
+    /// <summary>
+    /// Dirección que puede realizar un Dron
+    /// </summary>
     public enum DronDirection
     {
         Undefined,
@@ -17,6 +20,9 @@ namespace YellowstoneDrones
         [Description("W")]
         West
     }
+    /// <summary>
+    /// Movimiento que puede realizar un Dron
+    /// </summary>
     public enum DronMovement
     {
         Undefined,
@@ -24,30 +30,55 @@ namespace YellowstoneDrones
         Right,
         Advance    
     }
+    /// <summary>
+    /// Clase básica para no trabajar con array's y sí con objectos
+    /// </summary>
     public class CoordinatesCommand
     {
         public int X;
         public int Y;
     }
+    /// <summary>
+    /// Clase básica para no trabajar con array's y sí con objectos
+    /// Extiende a CoordinatesCommand ya que es igual pero además incluye la dirección
+    /// </summary>
     public class CoordinatesWithDirectionCommand : CoordinatesCommand
     {
         public DronDirection Direction;
     }
+    /// <summary>
+    /// Clase para gestionar el Dron
+    /// </summary>
     public class Drone
     {
         private CoordinatesCommand m_FlyingArea;
         private List<Tuple<int,int>> m_Start;
         private DronDirection m_Direction;
+        /// <summary>
+        /// Creación del objecto Dron
+        /// </summary>
+        /// <param name="coord">CoordinatesCommand: Coordenadas válidas que define el tablero</param>
         public Drone(CoordinatesCommand coord)
         {
             Helper.ConsoleDebug("Create a Dron Area {0}x{1}", coord.X, coord.Y);
             m_FlyingArea = coord;
         }
+        /// <summary>
+        /// Inicialización del Dron
+        /// </summary>
+        /// <param name="data">String: Comprueba que el parámetro es un commando válido y lo procesa</param>
         public void Start(string data)
         {
             var startPos = Helper.ParseStartPositionCommand(data);
             StartAt(startPos.X, startPos.Y, startPos.Direction);
         }
+        /// <summary>
+        /// Inicialización del Dron
+        /// Sitúa el Dron en unas coordenadas y dirección dentro del tablero
+        /// </summary>
+        /// <param name="x">Int: Coordenada X</param>
+        /// <param name="y">Int: Coordenada Y</param>
+        /// <param name="dir">DronDirection: Dirección válidas que definen el punto de inicio del dron dentro del tablero</param>
         private void StartAt(int x, int y, DronDirection dir)
         {
             Helper.ConsoleDebug("Start {0} {1} {2}", x, y, dir);
@@ -56,6 +87,10 @@ namespace YellowstoneDrones
             m_Start.Add(Tuple.Create(x,y));
             m_Direction = dir;            
         }
+        /// <summary>
+        /// Movimiento del Dron
+        /// </summary>
+        /// <param name="data">String: Comprueba que el parámetro es un commando válido y lo procesa</param>
         public void Move(string data)
         {
             foreach(var ch in data)
@@ -64,6 +99,10 @@ namespace YellowstoneDrones
                 MoveTo(movement);
             }
         }
+        /// <summary>
+        /// Movimiento del Dron
+        /// </summary>
+        /// <param name="data">DronMovement: Tipo de movimiento hacia donde debe dirigirse el Dron</param>
         private void MoveTo(DronMovement move)
         {
             Helper.ConsoleDebug("Dron move to {0}", move);
@@ -106,6 +145,9 @@ namespace YellowstoneDrones
             var afterMovementY = m_Start.Last().Item2;
             Helper.ConsoleDebug("{0}x{1} to direcction {2}", afterMovementX, afterMovementY, m_Direction);
         }
+        /// <summary>
+        /// Muestra la posición actual del último Dron creado
+        /// </summary>
         public string ShowPossition()
         {
             var currentX = m_Start.Last().Item1;

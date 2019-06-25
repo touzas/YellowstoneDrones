@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace YellowstoneDrones
 {
+    /// <summary>
+    /// Valores reconocidos para poder interpretar un comando
+    /// </summary>
     public enum Command
     {
         DronArea,
@@ -12,6 +15,9 @@ namespace YellowstoneDrones
         Movement,
         Undefined,
     }
+    /// <summary>
+    /// Estructura para procesar de la misma forma todos los comandos
+    /// </summary>
     public class StringCommand
     {
         public Command cmd;
@@ -29,6 +35,11 @@ namespace YellowstoneDrones
         const string RegexInitialPossition = "[0-9][ ][0-9][ ][NSEW]$";
         const string RegexMovement = "[MRL]";
 
+        /// <summary>
+        /// Convierte una cadena en un StringCommand.
+        /// Devuelve los comandos válidos que haya en la cadena de string
+        /// </summary>
+        /// <param name="data">Cadena string</param>
         public static StringCommand GetCommandType(string data)
         {
             var res = new StringCommand();
@@ -60,6 +71,11 @@ namespace YellowstoneDrones
 
             return res;
         }
+        /// <summary>
+        /// Convierte una cadena en un DronDirection.
+        /// Devuelve Null en caso de cadena inválida
+        /// </summary>
+        /// <param name="data">Cadena string</param>
         public static DronDirection GetDirection(string data)
         {
             switch(data)
@@ -75,6 +91,11 @@ namespace YellowstoneDrones
             }
             return DronDirection.Undefined;
         }
+        /// <summary>
+        /// Convierte una cadena en un DronMovement.
+        /// Devuelve Null en caso de cadena inválida
+        /// </summary>
+        /// <param name="data">Cadena char</param>
         public static DronMovement GetMovement(char data)
         {
             switch(data)
@@ -88,6 +109,11 @@ namespace YellowstoneDrones
             }
             return DronMovement.Undefined;
         }        
+        /// <summary>
+        /// Convierte una cadena en un CoordinatesWithDirectionCommand.
+        /// Devuelve Null en caso de cadena inválida
+        /// </summary>
+        /// <param name="data">Cadena string</param>
         public static CoordinatesWithDirectionCommand ParseStartPositionCommand(string data)
         {
             string[] area = data.Split(' ');
@@ -97,6 +123,11 @@ namespace YellowstoneDrones
             var movement = GetDirection(area[2]);
             return new CoordinatesWithDirectionCommand(){ X = coordinates.X, Y = coordinates.Y, Direction = movement};
         }
+        /// <summary>
+        /// Convierte una cadena en un CoordinatesCommand.
+        /// Devuelve Null en caso de cadena inválida
+        /// </summary>
+        /// <param name="data">Cadena string</param>
         public static CoordinatesCommand GetCoordinates(string data)
         {
             int x = -1;
@@ -116,12 +147,19 @@ namespace YellowstoneDrones
             }
             return new CoordinatesCommand(){ X = x, Y = y };
         }
+        /// <summary>
+        /// En el caso de que un enumerado tenga una descripción la devuelve, en caso contrario devuelve el enumerado en texto.
+        /// </summary>
+        /// <param name="value">Valor de enumerado</param>
         public static string GetDescriptionFromEnumValue(Enum value)
         {
             DescriptionAttribute attribute = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false).SingleOrDefault() as DescriptionAttribute;
             return attribute == null ? value.ToString() : attribute.Description;
         }
-
+        /// <summary>
+        /// En el caso de esté activo el modo DEBUG muestra por consola información.
+        /// </summary>
+        /// <param name="data">Valor de texto a mostrar por consola</param>
         public static void ConsoleDebug(string data, params object[] arg)
         {
             if (DEBUG)                

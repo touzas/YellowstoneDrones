@@ -7,6 +7,10 @@ namespace YellowstoneDrones
 {
     class Program
     {
+        /**
+        Devuelve una serie de líneas que definen la entrada de 
+        ordenes hacia los drons
+        */
         static List<string> UnitaryTest()
         {
             var lines = new List<string>();
@@ -19,6 +23,9 @@ namespace YellowstoneDrones
             lines.Add("LMLMLMLMMLMLMLMLMM");
             return lines;
         }
+        /**
+        Devuelve una serie de líneas que son el resultado esperado
+        */
         static List<string> UnitaryTestResult()
         {
             var lines = new List<string>();
@@ -27,6 +34,13 @@ namespace YellowstoneDrones
             lines.Add("1 4 N");
             return lines;
         }
+        // Summary:
+        //     Método principal de la aplicación
+        //
+        // Parameters:
+        //   collection:
+        //     Una Lista de argumentos que indican que se va a procesar
+        //
         static void Main(string[] args)
         {
             List<string> lines = new List<string>();
@@ -37,7 +51,7 @@ namespace YellowstoneDrones
             Console.WriteLine("t => Unitay test");
             Console.WriteLine("f=<file> => Drone Movements are in file");
 
-            if (args != null && args.Length > 0 && args.First() == "t")
+            if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "t")
             {
                 Console.WriteLine("Process a unitary test");
                 lines = UnitaryTest();
@@ -45,7 +59,7 @@ namespace YellowstoneDrones
             }
             else
             {                
-                if (args != null && args.Length > 0 && args.First() == "f")
+                if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "f")
                 {
                     var command = args.First().Split("=", StringSplitOptions.RemoveEmptyEntries);
                     var fi = new FileInfo(command[1]);
@@ -53,7 +67,6 @@ namespace YellowstoneDrones
                     {
                         using(var str = new StreamReader(command[1]))
                         {
-                            
                             lines.AddRange(str.ReadToEnd().Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList());
                         }
                     }
@@ -64,6 +77,13 @@ namespace YellowstoneDrones
                 Console.WriteLine("UnitaryTest is {0}", result.SequenceEqual(UnitaryTestResult()));
 
         }
+        // Summary:
+        //     Procesa cada línea introducida en la lista de ordenes
+        //
+        // Parameters:
+        //   collection:
+        //     Una Lista de comandos a procesar
+        //
         static List<string> ProcessCommands(List<string> lines)
         {
             List<string> result = new List<string>();
@@ -93,6 +113,13 @@ namespace YellowstoneDrones
             result.Add(drone.ShowPossition());
             return result;
         }
+        // Summary:
+        //     Crea el Dron en el caso de que se hayan indicado unas coordenadas de forma correcta.        
+        //
+        // Parameters:
+        //   String:
+        //     Commando que contiene unas coordenadas
+        //
         static Drone CreateDrone(string data)
         {
             var flyingArea = Helper.GetCoordinates(data);
