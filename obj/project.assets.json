@@ -686,7 +686,7 @@
     ]
   },
   "packageFolders": {
-    "/root/.nuget/packages/": {},
+    "/home/touzas/.nuget/packages/": {},
     "/usr/share/dotnet/sdk/NuGetFallbackFolder": {}
   },
   "project": {
@@ -695,14 +695,14 @@
       "projectUniqueName": "/home/touzas/NetCore/YellowstoneDrones/YellowstoneDrones.csproj",
       "projectName": "YellowstoneDrones",
       "projectPath": "/home/touzas/NetCore/YellowstoneDrones/YellowstoneDrones.csproj",
-      "packagesPath": "/root/.nuget/packages/",
+      "packagesPath": "/home/touzas/.nuget/packages/",
       "outputPath": "/home/touzas/NetCore/YellowstoneDrones/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "/usr/share/dotnet/sdk/NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "/root/.nuget/NuGet/NuGet.Config"
+        "/home/touzas/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.2"

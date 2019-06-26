@@ -51,8 +51,17 @@ namespace YellowstoneDrones
     /// </summary>
     public class Drone
     {
+        /// <summary>
+        /// Difinición del area de vuelo
+        /// </summary>
         private CoordinatesCommand m_FlyingArea;
+        /// <summary>
+        /// Lista de movimientos
+        /// </summary>
         private List<Tuple<int,int>> m_Start;
+        /// <summary>
+        /// Dirección actual del Dron
+        /// </summary>
         private DronDirection m_Direction;
         /// <summary>
         /// Creación del objecto Dron
@@ -112,13 +121,29 @@ namespace YellowstoneDrones
             {
                 case DronMovement.Advance:
                     if (m_Direction == DronDirection.North)
+                    {
+                        if (currentY + 1 > m_FlyingArea.Y )
+                            throw new Exception("Invalid Drone movement. It goes outside the defined flight area.");
                         m_Start.Add(Tuple.Create(currentX, currentY + 1));
+                    }
                     else if (m_Direction == DronDirection.South)
+                    {
+                        if (currentY - 1 < 0 )
+                            throw new Exception("Invalid Drone movement. It goes outside the defined flight area.");
                         m_Start.Add(Tuple.Create(currentX, currentY - 1));
+                    }
                     else if (m_Direction == DronDirection.East)
+                    {
+                        if (currentX + 1 > m_FlyingArea.X )
+                            throw new Exception("Invalid Drone movement. It goes outside the defined flight area.");
                         m_Start.Add(Tuple.Create(currentX + 1, currentY));
+                    }
                     else if (m_Direction == DronDirection.West)
+                    {
+                        if (currentX - 1 < 0 )
+                            throw new Exception("Invalid Drone movement. It goes outside the defined flight area.");
                         m_Start.Add(Tuple.Create(currentX - 1, currentY));
+                    }
                     break;
                 case DronMovement.Left:
                     if (m_Direction == DronDirection.North)

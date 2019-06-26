@@ -14,6 +14,7 @@ namespace YellowstoneDrones
         StartPosition,
         Movement,
         Undefined,
+        Quit
     }
     /// <summary>
     /// Estructura para procesar de la misma forma todos los comandos
@@ -65,9 +66,15 @@ namespace YellowstoneDrones
                 matches = rm.Matches(data);
                 res.cmd = Command.Movement;
             }
-            
-            foreach(Match m in matches)
-                res.args += m.Value.ToLowerInvariant();
+            else if (data == "Q")
+            {
+                res.cmd = Command.Quit;
+            }
+            if (matches != null)
+            {
+                foreach(Match m in matches)
+                    res.args += m.Value.ToLowerInvariant();
+            }
 
             return res;
         }
@@ -164,6 +171,11 @@ namespace YellowstoneDrones
         {
             if (DEBUG)                
                 Console.WriteLine(data, arg);
+        }
+        public static string StringFromConsole()
+        {
+            var cmd = Console.ReadLine();
+            return cmd.Trim().ToUpperInvariant();
         }
     }
 }

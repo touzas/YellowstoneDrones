@@ -40,82 +40,74 @@ namespace YellowstoneDrones
         static void Main(string[] args)
         {
             List<string> lines = new List<string>();
+            List<string> dronMovements = new List<string>();
+            var df = new DroneFactory(true, false);
             bool Utest = false;
             Console.WriteLine("Yellowstone’s park control forest");
             Console.WriteLine("====================================");
             Console.WriteLine("Possible commands:");
-            Console.WriteLine("t => Unitay test");
+            Console.WriteLine("t        => Unitay test");
             Console.WriteLine("f=<file> => Drone Movements are in file");
+            Console.WriteLine("g        => Join the game");
+            Console.WriteLine("q        => Quit the game");
+            Console.WriteLine(string.Join(";", args));
 
             if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "t")
             {
                 Console.WriteLine("Process a unitary test");
-                lines = UnitaryTest();
+                foreach(var line in UnitaryTest())
+                {
+                    df.ProcessLine(line);
+                }
+                
                 Utest = true;
             }
-            else
-            {                
-                if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "f")
+            else if (args != null && args.Length > 0 && args.First().ToLowerInvariant().StartsWith("f="))
+            {
+                var command = args.First().Split("=", StringSplitOptions.RemoveEmptyEntries);
+                var fi = new FileInfo(command[1]);
+                if (fi.Exists)
                 {
-                    var command = args.First().Split("=", StringSplitOptions.RemoveEmptyEntries);
-                    var fi = new FileInfo(command[1]);
-                    if (fi.Exists)
+                    using(var str = new StreamReader(command[1]))
                     {
-                        using(var str = new StreamReader(command[1]))
+                        while (str.Peek() >= 0) 
                         {
-                            lines.AddRange(str.ReadToEnd().Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList());
+                            var line = str.ReadLine();
+                            Console.WriteLine(string.Format("Proccess line: {0}",line));
+                            df.ProcessLine(line);
                         }
                     }
                 }
             }
-            var result = ProcessCommands(lines);
-            if (Utest)
-                Console.WriteLine("UnitaryTest is {0}", result.SequenceEqual(UnitaryTestResult()));
-
-        }
-        /// <summary>
-        /// Procesa cada línea introducida en la lista de ordenes
-        /// </summary>
-        /// <param name="lines">Una Lista de comandos a procesar</param>
-        static List<string> ProcessCommands(List<string> lines)
-        {
-            List<string> result = new List<string>();
-            Drone drone = null;
-            var command = new StringCommand();
-            bool initialMovement = true;
-            foreach(var line in lines)
+            else if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "g")
             {
-                command = Helper.GetCommandType(line);
-                if (command.cmd == Command.DronArea)
-                    drone = CreateDrone(command.args);
-                
-                if (drone == null)
-                    continue;
-                if (command.cmd == Command.StartPosition)
+                df = new DroneFactory(false, true);
+                do
                 {
-                    if (!initialMovement)
-                        result.Add(drone.ShowPossition());
-                    drone.Start(command.args);
+                    Console.WriteLine("Please, insert a start position or a movement");
                 }
-                if (command.cmd == Command.Movement)
-                {
-                    drone.Move(command.args);
-                    initialMovement = false;                    
-                }
+                while(GameRunning(df));
             }
-            result.Add(drone.ShowPossition());
-            return result;
+            dronMovements = df.GetMovements();
+            if (Utest)
+            {
+                Console.WriteLine(string.Join("\n", dronMovements));
+                Console.WriteLine("UnitaryTest is {0}", dronMovements.SequenceEqual(UnitaryTestResult()));
+            }
         }
-        /// <summary>
-        /// Crea el Dron en el caso de que se hayan indicado unas coordenadas de forma correcta.
-        /// </summary>
-        /// <param name="lines">Commando que contiene unas coordenadas</param>
-        static Drone CreateDrone(string data)
+        static bool GameRunning(DroneFactory df)
         {
-            var flyingArea = Helper.GetCoordinates(data);
-            if (flyingArea == null)
-                return null;
-            return new Drone(flyingArea);
+            var move = Helper.StringFromConsole();
+            try
+            {
+                df.ProcessLine(move);
+                Console.WriteLine(df.GetMovement());
+            }
+            catch
+            {
+                return false;
+            }            
+            return true;
         }
     }
 }
