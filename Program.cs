@@ -52,14 +52,16 @@ namespace YellowstoneDrones
             Console.WriteLine("q        => Quit the game");
             Console.WriteLine(string.Join(";", args));
 
-            if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "t")
+            if (args.Length == 0 || (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "t"))
             {
                 Console.WriteLine("Process a unitary test");
+                Console.WriteLine("Input lines:");
                 foreach(var line in UnitaryTest())
                 {
+                    Console.WriteLine(line);
                     df.ProcessLine(line);
                 }
-                
+                Console.WriteLine("Output lines:");
                 Utest = true;
             }
             else if (args != null && args.Length > 0 && args.First().ToLowerInvariant().StartsWith("f="))
