@@ -2,114 +2,158 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace YellowstoneDrones
 {
     class Program
-    {
-        /// <summary>
-        /// Devuelve una serie de líneas que definen la entrada de ordenes hacia los drons
-        /// </summary>
-        static List<string> UnitaryTest()
-        {
-            var lines = new List<string>();
-            lines.Add("5 5");
-            lines.Add("3 3 E");
-            lines.Add("L");
-            lines.Add("3 3 E");
-            lines.Add("MMRMMRMRRM");
-            lines.Add("1 2 N");
-            lines.Add("LMLMLMLMMLMLMLMLMM");
-            return lines;
-        }
-        /// <summary>
-        /// Devuelve una serie de líneas que son el resultado esperado
-        /// </summary>
-        static List<string> UnitaryTestResult()
-        {
-            var lines = new List<string>();
-            lines.Add("3 3 N");
-            lines.Add("5 1 E");
-            lines.Add("1 4 N");
-            return lines;
-        }
-        /// <summary>
-        /// Método principal de la aplicación
-        /// </summary>
-        /// <param name="args">Una Lista de argumentos que indican que se va a procesar</param>
+    {                
         static void Main(string[] args)
         {
-            List<string> lines = new List<string>();
-            List<string> dronMovements = new List<string>();
-            var df = new DroneFactory(true, false);
-            bool Utest = false;
-            Console.WriteLine("Yellowstone’s park control forest");
-            Console.WriteLine("====================================");
-            Console.WriteLine("Possible commands:");
-            Console.WriteLine("t        => Unitay test");
-            Console.WriteLine("f=<file> => Drone Movements are in file");
-            Console.WriteLine("g        => Join the game");
-            Console.WriteLine("q        => Quit the game");
-            Console.WriteLine(string.Join(";", args));
-
-            if (args.Length == 0 || (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "t"))
+            if (args.Length == 0)
             {
-                Console.WriteLine("Process a unitary test");
-                Console.WriteLine("Input lines:");
-                foreach(var line in UnitaryTest())
-                {
-                    Console.WriteLine(line);
-                    df.ProcessLine(line);
-                }
-                Console.WriteLine("Output lines:");
-                Utest = true;
+                Console.WriteLine("You must be indicate a file to load a commands");
+                return;
             }
-            else if (args != null && args.Length > 0 && args.First().ToLowerInvariant().StartsWith("f="))
+            var fi = new FileInfo(args[0]);
+            if (!fi.Exists)
             {
-                var command = args.First().Split("=", StringSplitOptions.RemoveEmptyEntries);
-                var fi = new FileInfo(command[1]);
-                if (fi.Exists)
-                {
-                    using(var str = new StreamReader(command[1]))
-                    {
-                        while (str.Peek() >= 0) 
-                        {
-                            var line = str.ReadLine();
-                            Console.WriteLine(string.Format("Proccess line: {0}",line));
-                            df.ProcessLine(line);
-                        }
-                    }
-                }
+                Console.WriteLine("You must be indicate a path of a file to load a commands");
+                return;
             }
-            else if (args != null && args.Length > 0 && args.First().ToLowerInvariant() == "g")
+            var drone = new Drone();
+            using(var str = new StreamReader(args[0]))
             {
-                df = new DroneFactory(false, true);
-                do
+                while (str.Peek() >= 0) 
                 {
-                    Console.WriteLine("Please, insert a start position or a movement");
+                    var line = str.ReadLine();
+                    //Console.WriteLine(string.Format("Proccess line: {0}",line));
+                    ProcessLine(line, drone);
                 }
-                while(GameRunning(df));
-            }
-            dronMovements = df.GetMovements();
-            if (Utest)
-            {
-                Console.WriteLine(string.Join("\n", dronMovements));
-                Console.WriteLine("UnitaryTest is {0}", dronMovements.SequenceEqual(UnitaryTestResult()));
+                drone.ShowPosition();
             }
         }
-        static bool GameRunning(DroneFactory df)
-        {
-            var move = Helper.StringFromConsole();
-            try
+        static void ProcessLine(string data, Drone drone)
+        {            
+            var droneArea = new Regex("[0-9][ ][0-9]$");
+            var droneStartAt = new Regex("[0-9][ ][0-9][ ][NSEW]$");
+            var droneMovement = new Regex("[MRL]");
+            
+            if (droneArea.IsMatch(data))
+            {                
+                string[] area = data.Split(' ');
+                var coord = ParseCoordinates(area[0], area[1]);
+                if (coord.Item1 >= 0 && coord.Item2 >= 0)
+                {
+                    drone.SetArea(new DroneArea(coord.Item1, coord.Item2));
+                }
+            }                
+            else if (droneStartAt.IsMatch(data))
             {
-                df.ProcessLine(move);
-                Console.WriteLine(df.GetMovement());
+                drone.ShowPosition();
+                string[] area = data.Split(' ');
+                var coord = ParseCoordinates(area[0], area[1]);
+                Direction dir = (Direction)Enum.Parse(typeof(Direction), area[2], true);
+                drone.StartAt(coord.Item1, coord.Item2, dir);
             }
-            catch
+            else if (droneMovement.IsMatch(data))
             {
-                return false;
-            }            
-            return true;
+                foreach(char c in data)
+                {
+                    drone.Move(c);
+                }
+            }
+        }
+        static Tuple<int,int> ParseCoordinates(string xArea, string yArea)
+        {
+            int x = -1;
+            int y = -1;
+            int.TryParse(xArea, out x);
+            int.TryParse(yArea, out y);
+            return Tuple.Create(x,y);
         }
     }
+    public class DroneArea
+    {
+        private int X;
+        private int Y;
+        public DroneArea(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+    public enum Direction
+    {
+        N,S,E,W
+    }
+    public enum Movement
+    {
+        M,L,R
+    }
+    public class Drone
+    {
+        private DroneArea m_area;
+        private List<Tuple<int,int>> m_movements;
+        private Direction m_direction;
+        public void SetArea(DroneArea area)
+        {
+            m_area = area;
+        }
+        public void StartAt(int x, int y, Direction d)
+        {
+            if (m_movements == null)
+                m_movements = new List<Tuple<int, int>>();
+            m_movements.Add(Tuple.Create(x, y));
+            m_direction = d;
+        }
+        public void Move(char c)
+        {
+            Movement move = (Movement)Enum.Parse(typeof(Movement), c.ToString(), true);
+            var currentX = m_movements.Last().Item1;
+            var currentY = m_movements.Last().Item2;
+            switch(move)
+            {
+                case Movement.L:
+                    if (m_direction == Direction.N)
+                        m_direction = Direction.W;
+                    else if (m_direction == Direction.S)
+                        m_direction = Direction.E;
+                    else if (m_direction == Direction.E)
+                        m_direction = Direction.N;
+                    else if (m_direction == Direction.W)
+                        m_direction = Direction.S;                    
+                break;
+                case Movement.R:
+                    if (m_direction == Direction.N)
+                        m_direction = Direction.E;
+                    else if (m_direction == Direction.S)
+                        m_direction = Direction.W;
+                    else if (m_direction == Direction.E)
+                        m_direction = Direction.S;
+                    else if (m_direction == Direction.W)
+                        m_direction = Direction.N;
+                break;
+                case Movement.M:
+                    if (m_direction == Direction.N)
+                        m_movements.Add(Tuple.Create(currentX, currentY + 1));
+                    else if (m_direction == Direction.S)
+                        m_movements.Add(Tuple.Create(currentX, currentY - 1));
+                    else if (m_direction == Direction.E)
+                        m_movements.Add(Tuple.Create(currentX + 1, currentY));
+                    else if (m_direction == Direction.W)
+                        m_movements.Add(Tuple.Create(currentX - 1, currentY));
+                break;
+            }
+        }
+        public void ShowPosition()
+        {
+            if (m_movements == null || !m_movements.Any())
+                return;
+            var currentX = m_movements.Last().Item1;
+            var currentY = m_movements.Last().Item2;
+            Console.WriteLine(string.Format("{0} {1} {2}", currentX, currentY, m_direction));
+        }
+    }
+
 }
